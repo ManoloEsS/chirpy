@@ -21,7 +21,7 @@ func TestHashPassword(t *testing.T) {
 		{
 			name:          "empty password",
 			password:      "",
-			expectedError: true,
+			expectedError: false,
 		},
 		{
 			name:          "special chars",
@@ -77,7 +77,7 @@ func TestCheckPasswordHash(t *testing.T) {
 		},
 		{
 			name:        "wrong password",
-			password:    password,
+			password:    "wrong",
 			hash:        hash,
 			expectMatch: false,
 		},

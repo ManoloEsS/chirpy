@@ -24,6 +24,10 @@ func main() {
 	if dbPlatform == "" {
 		log.Fatal("PLATFORM must be set")
 	}
+	secretAuth := os.Getenv("SECRET")
+	if secretAuth == "" {
+		log.Fatal("SECRET must be set")
+	}
 
 	//open
 	db, err := sql.Open("postgres", dbURL)
@@ -41,6 +45,7 @@ func main() {
 	cfg := &handlers.ApiConfig{
 		Db:       dbQueries,
 		Platform: dbPlatform,
+		Secret:   secretAuth,
 	}
 
 	//initialize file server

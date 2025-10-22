@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/ManoloEsS/go_http_server/internal/auth"
 	"github.com/ManoloEsS/go_http_server/server"
@@ -10,8 +11,9 @@ import (
 
 func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	type loginRequest struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email              string `json:"email"`
+		Password           string `json:"password"`
+		Expires_in_seconds int    `json:"expires_in_seconds"`
 	}
 
 	var req loginRequest
@@ -41,11 +43,18 @@ func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	expirationDuration := time.Duration(req.Expires_in_seconds) * time.Second
+	token, err := auth.MakeJWT(userData.ID, cfg.Secret, expirationDuration)
+	if err != nil {
+		server.RespondWithError(w, http.StatusBadRequest, "Couldn't create authentication token", err)
+	}
+
 	JSONresponse := ResponseUser{
 		ID:        userData.ID,
 		CreatedAt: userData.CreatedAt,
 		UpdatedAt: userData.UpdatedAt,
 		Email:     userData.Email,
+		Token:     token,
 	}
 	server.RespondWithJSON(w, http.StatusOK, JSONresponse)
 

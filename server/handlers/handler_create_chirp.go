@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ManoloEsS/go_http_server/internal/auth"
 	"github.com/ManoloEsS/go_http_server/internal/config"
 	"github.com/ManoloEsS/go_http_server/internal/database"
 	"github.com/ManoloEsS/go_http_server/server"
@@ -21,9 +22,22 @@ func (cfg *ApiConfig) HandlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		Body   string    `json:"body"`
 		UserID uuid.UUID `json:"user_id"`
 	}
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't find JWT", err)
+		return
+	}
+
+	validatedID, err := auth.ValidateJWT(token, cfg.Secret)
+	if err != nil {
+		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't validate JWT", err)
+		return
+	}
+
 	newRequestChirpParams := ChirpParams{}
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newRequestChirpParams)
+	err = decoder.Decode(&newRequestChirpParams)
 	if err != nil {
 		server.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode chirp", err)
 		return
@@ -33,11 +47,12 @@ func (cfg *ApiConfig) HandlerCreateChirp(w http.ResponseWriter, r *http.Request)
 	filteredChirpBody, err := validateChirp(newRequestChirpParams.Body)
 	if err != nil {
 		server.RespondWithError(w, http.StatusBadRequest, err.Error(), err)
+		return
 	}
 
 	validatedChirpData := database.CreateChirpParams{
 		Body:   filteredChirpBody,
-		UserID: newRequestChirpParams.UserID,
+		UserID: validatedID,
 	}
 	//Add chirp to database and return the struct
 	validatedChirp, err := cfg.Db.CreateChirp(context.Background(), validatedChirpData)
@@ -57,7 +72,7 @@ func (cfg *ApiConfig) HandlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		CreatedAt: validatedChirp.CreatedAt,
 		UpdatedAt: validatedChirp.CreatedAt,
 		Body:      validatedChirp.Body,
-		UserID:    validatedChirp.UserID,
+		UserID:    validatedID,
 	}
 
 	//respond with success code and response instance

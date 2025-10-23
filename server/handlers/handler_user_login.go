@@ -59,7 +59,7 @@ func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken, _ := auth.MakeRefreshToken()
+	refreshToken := auth.MakeRefreshToken()
 
 	err = cfg.Db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		UserID: userData.ID,

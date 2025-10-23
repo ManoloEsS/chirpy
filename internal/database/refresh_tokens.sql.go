@@ -38,6 +38,7 @@ SELECT user_id
 FROM refresh_tokens
 WHERE token = $1
 AND expires_at > NOW()
+AND revoked_at IS NULL
 `
 
 func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (uuid.UUID, error) {
@@ -45,4 +46,15 @@ func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (uu
 	var user_id uuid.UUID
 	err := row.Scan(&user_id)
 	return user_id, err
+}
+
+const revokeRefreshToken = `-- name: RevokeRefreshToken :exec
+UPDATE refresh_tokens
+SET revoked_at = NOW(),  updated_at = NOW()
+WHERE token = $1
+`
+
+func (q *Queries) RevokeRefreshToken(ctx context.Context, token string) error {
+	_, err := q.db.ExecContext(ctx, revokeRefreshToken, token)
+	return err
 }

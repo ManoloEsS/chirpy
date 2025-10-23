@@ -5,11 +5,11 @@ import (
 	"encoding/hex"
 )
 
-func MakeRefreshToken() (string, error) {
+func MakeRefreshToken() string {
 	key := make([]byte, 32)
 	rand.Read(key)
 
 	encodedStr := hex.EncodeToString(key)
 
-	return encodedStr, nil
+	return encodedStr
 }

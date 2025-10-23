@@ -11,7 +11,7 @@ import (
 func (cfg *ApiConfig) HandlerValidateRefreshToken(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't find Refresh Token", err)
+		server.RespondWithError(w, http.StatusBadRequest, "Couldn't find Refresh Token", err)
 		return
 	}
 

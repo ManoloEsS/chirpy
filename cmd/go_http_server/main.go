@@ -80,6 +80,10 @@ func main() {
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.HandlerGetChirpById)
 	//handler that takes a password and email for login
 	mux.HandleFunc("POST /api/login", cfg.HandlerUserLogin)
+	//handler that takes no body and takes a Header with Authorization: Bearer <token>
+	mux.HandleFunc("POST /api/refresh", cfg.HandlerValidateRefreshToken)
+	//handler that revokes the refresh token from the database and returns no body
+	mux.HandleFunc("POST /api/revoke", cfg.HandlerRevokeRefreshToken)
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 

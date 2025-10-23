@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ManoloEsS/go_http_server/internal/auth"
+	"github.com/ManoloEsS/go_http_server/internal/database"
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
@@ -58,6 +59,16 @@ func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	refreshToken, _ := auth.MakeRefreshToken()
+
+	err = cfg.Db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		UserID: userData.ID,
+		Token:  refreshToken,
+	})
+	if err != nil {
+		server.RespondWithError(w, http.StatusInternalServerError, "couldn't create refresh token in database", err)
+	}
+
 	JSONresponse := response{
 		ResponseUser: ResponseUser{
 			ID:        userData.ID,
@@ -65,7 +76,8 @@ func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt: userData.UpdatedAt,
 			Email:     userData.Email,
 		},
-		Token: token,
+		Token:        token,
+		RefreshToken: refreshToken,
 	}
 	server.RespondWithJSON(w, http.StatusOK, JSONresponse)
 

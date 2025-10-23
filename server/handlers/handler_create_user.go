@@ -22,11 +22,13 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	err := decoder.Decode(&userRequest)
 	if err != nil {
 		server.RespondWithError(w, 500, "Couldn't decode user email", err)
+		return
 	}
 
 	hashedPassword, err := auth.HashPassword(userRequest.Password)
 	if err != nil {
 		server.RespondWithError(w, http.StatusBadRequest, "couldn't encrypt password", err)
+		return
 	}
 
 	newUser, err := cfg.Db.CreateUser(r.Context(), database.CreateUserParams{
@@ -35,6 +37,7 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	})
 	if err != nil {
 		server.RespondWithError(w, 500, "Couldn't create user", err)
+		return
 	}
 
 	newResponseUser := ResponseUser{

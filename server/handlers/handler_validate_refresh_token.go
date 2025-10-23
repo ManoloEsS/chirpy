@@ -15,13 +15,13 @@ func (cfg *ApiConfig) HandlerValidateRefreshToken(w http.ResponseWriter, r *http
 		return
 	}
 
-	id, err := cfg.Db.GetUserFromRefreshToken(r.Context(), token)
+	userData, err := cfg.Db.GetUserFromRefreshToken(r.Context(), token)
 	if err != nil {
 		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't find user or token expired", err)
 		return
 	}
 
-	JWTtoken, err := auth.MakeJWT(id, cfg.Secret, time.Duration(time.Hour*1))
+	JWTtoken, err := auth.MakeJWT(userData.ID, cfg.Secret, time.Duration(time.Hour*1))
 	if err != nil {
 		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't create JWT token", err)
 		return

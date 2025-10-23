@@ -84,6 +84,8 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", cfg.HandlerValidateRefreshToken)
 	//handler that revokes the refresh token from the database and returns no body
 	mux.HandleFunc("POST /api/revoke", cfg.HandlerRevokeRefreshToken)
+	//handler that lets users update their passwords
+	mux.HandleFunc("PUT /api/users", cfg.HandlerUserUpdate)
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 

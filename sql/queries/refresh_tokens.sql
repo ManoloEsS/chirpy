@@ -10,13 +10,15 @@ VALUES (
     );
 
 -- name: GetUserFromRefreshToken :one
-SELECT user_id
-FROM refresh_tokens
-WHERE token = $1
-AND expires_at > NOW()
-AND revoked_at IS NULL;
+SELECT users.* FROM users
+INNER JOIN refresh_tokens
+ON users.ID = refresh_tokens.UserID
+WHERE refresh_tokens.token = $1
+AND refresh_tokens.expires_at > NOW()
+AND refresh_tokens.revoked_at IS NULL;
 
 -- name: RevokeRefreshToken :exec
 UPDATE refresh_tokens
 SET revoked_at = NOW(),  updated_at = NOW()
 WHERE token = $1;
+

@@ -13,3 +13,8 @@ type ResponseUser struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
 }
+
+type login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

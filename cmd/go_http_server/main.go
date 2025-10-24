@@ -87,7 +87,7 @@ func main() {
 	//handler that lets users update their passwords
 	mux.HandleFunc("PUT /api/users", cfg.HandlerUserUpdate)
 	//handler that deletes chirp from database from chirp id
-	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.HandleDeleteChirp)
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.HandlerDeleteChirp)
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 

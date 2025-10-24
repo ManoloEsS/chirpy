@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cfg *ApiConfig) HandleDeleteChirp(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("chirpID")
 	chirpID, err := uuid.Parse(idString)
 	if err != nil {

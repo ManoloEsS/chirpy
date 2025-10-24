@@ -86,6 +86,8 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", cfg.HandlerRevokeRefreshToken)
 	//handler that lets users update their passwords
 	mux.HandleFunc("PUT /api/users", cfg.HandlerUserUpdate)
+	//handler that deletes chirp from database from chirp id
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.HandleDeleteChirp)
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 

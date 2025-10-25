@@ -71,10 +71,11 @@ func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 
 	JSONresponse := response{
 		ResponseUser: ResponseUser{
-			ID:        userData.ID,
-			CreatedAt: userData.CreatedAt,
-			UpdatedAt: userData.UpdatedAt,
-			Email:     userData.Email,
+			ID:          userData.ID,
+			CreatedAt:   userData.CreatedAt,
+			UpdatedAt:   userData.UpdatedAt,
+			Email:       userData.Email,
+			IsChirpyRed: userData.IsChirpyRed.Bool,
 		},
 		Token:        token,
 		RefreshToken: refreshToken,

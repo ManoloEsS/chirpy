@@ -88,6 +88,8 @@ func main() {
 	mux.HandleFunc("PUT /api/users", cfg.HandlerUserUpdate)
 	//handler that deletes chirp from database from chirp id
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.HandlerDeleteChirp)
+	//handler for webhook that updates user to chirpy red
+	mux.HandleFunc("POST /api/polka/webhooks", cfg.HandlerUpdateUserToChirpyRed)
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 

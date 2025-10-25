@@ -48,10 +48,11 @@ func (cfg *ApiConfig) HandlerUserUpdate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	newResponse := ResponseUser{
-		ID:        newUserData.ID,
-		CreatedAt: newUserData.CreatedAt,
-		UpdatedAt: newUserData.UpdatedAt,
-		Email:     newUserData.Email,
+		ID:          newUserData.ID,
+		CreatedAt:   newUserData.CreatedAt,
+		UpdatedAt:   newUserData.UpdatedAt,
+		Email:       newUserData.Email,
+		IsChirpyRed: newUserData.IsChirpyRed.Bool,
 	}
 
 	server.RespondWithJSON(w, http.StatusOK, newResponse)

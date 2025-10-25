@@ -28,6 +28,10 @@ func main() {
 	if secretAuth == "" {
 		log.Fatal("SECRET must be set")
 	}
+	polkaApiKey := os.Getenv("POLKA_KEY")
+	if polkaApiKey == "" {
+		log.Fatal("POLKA_KEY must be set")
+	}
 
 	//open
 	db, err := sql.Open("postgres", dbURL)
@@ -46,6 +50,7 @@ func main() {
 		Db:       dbQueries,
 		Platform: dbPlatform,
 		Secret:   secretAuth,
+		PolkaAPI: polkaApiKey,
 	}
 
 	//initialize file server

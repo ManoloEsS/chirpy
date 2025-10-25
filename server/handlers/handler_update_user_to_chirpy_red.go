@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ManoloEsS/go_http_server/internal/auth"
 	"github.com/ManoloEsS/go_http_server/server"
 	"github.com/google/uuid"
 )
@@ -28,6 +29,16 @@ func (cfg *ApiConfig) HandlerUpdateUserToChirpyRed(w http.ResponseWriter, r *htt
 	if eventData.Event != "user.upgraded" {
 		w.WriteHeader(http.StatusNoContent)
 		return
+	}
+
+	key, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		server.RespondWithError(w, http.StatusUnauthorized, "Couldn't retrieve Authorization header", err)
+		return
+	}
+
+	if key != cfg.PolkaAPI {
+		server.RespondWithError(w, http.StatusUnauthorized, "Incorrect API key", err)
 	}
 
 	err = cfg.Db.UpdateUserIsChirpyRedTrue(r.Context(), eventData.Data.UserID)

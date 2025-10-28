@@ -8,6 +8,8 @@ import (
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
+// HandlerValidateRefreshToken exchanges a valid refresh token for a new JWT access token.
+// Verifies the refresh token against the database and generates a new 1-hour JWT.
 func (cfg *ApiConfig) HandlerValidateRefreshToken(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {

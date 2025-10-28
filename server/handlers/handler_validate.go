@@ -7,7 +7,8 @@ import (
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
-// function that validates a chirp and responds with a JSON or error
+// HandlerValidateChirp validates chirp message format and length.
+// Decodes the request body but does not persist data (legacy validation endpoint).
 func HandlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	//chirp struct to use for decoding request body
 	type chirp struct {

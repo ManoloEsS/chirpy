@@ -6,7 +6,8 @@ import (
 	"github.com/ManoloEsS/go_http_server/internal/database"
 )
 
-// api config to store a state
+// ApiConfig holds shared application state and configuration.
+// Provides database access, secrets, and metrics across all handlers.
 type ApiConfig struct {
 	fileServerHits atomic.Int32
 	Db             *database.Queries

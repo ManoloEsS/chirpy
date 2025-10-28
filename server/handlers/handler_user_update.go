@@ -9,6 +9,8 @@ import (
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
+// HandlerUserUpdate allows authenticated users to update their email and password.
+// Validates JWT, hashes new password, and updates user data in the database.
 func (cfg *ApiConfig) HandlerUserUpdate(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {

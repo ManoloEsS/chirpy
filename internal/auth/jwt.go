@@ -15,6 +15,8 @@ const (
 	TokenTypeAccess TokenType = "chirpy-access"
 )
 
+// MakeJWT creates a signed JWT token for the given user ID with the specified expiration.
+// Uses HS256 signing and includes the user ID in the subject claim. Called by login and refresh handlers.
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
 	claims := jwt.RegisteredClaims{
 		Issuer:    string(TokenTypeAccess),
@@ -33,6 +35,8 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 	return signedString, nil
 }
 
+// ValidateJWT validates a JWT token and extracts the user ID from its claims.
+// Used by protected endpoints to authenticate requests and identify users.
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	ChirpClaim := jwt.RegisteredClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, &ChirpClaim, func(token *jwt.Token) (any, error) {

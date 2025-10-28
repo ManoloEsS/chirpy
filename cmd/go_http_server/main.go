@@ -1,3 +1,4 @@
+// Package main provides the entry point for the Chirpy HTTP server application.
 package main
 
 import (
@@ -12,6 +13,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// main initializes the HTTP server with database connection, configures routes, and starts serving requests.
+// Loads environment variables, connects to PostgreSQL, and sets up handlers for the Chirpy social media API.
 func main() {
 	//load .env file
 	godotenv.Load()

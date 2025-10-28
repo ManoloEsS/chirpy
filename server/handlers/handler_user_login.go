@@ -10,6 +10,8 @@ import (
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
+// HandlerUserLogin authenticates users and issues JWT and refresh tokens.
+// Validates credentials, generates tokens with configurable expiration, and stores refresh token.
 func (cfg *ApiConfig) HandlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	type loginRequest struct {
 		Email              string `json:"email"`

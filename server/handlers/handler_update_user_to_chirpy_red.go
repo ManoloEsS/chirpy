@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// HandlerUpdateUserToChirpyRed handles webhook events from Polka API to upgrade users to Chirpy Red membership.
+// It validates the API key, processes "user.upgraded" events, and updates the user's membership status in the database.
 func (cfg *ApiConfig) HandlerUpdateUserToChirpyRed(w http.ResponseWriter, r *http.Request) {
 	type UpgradeEvent struct {
 		Event string `json:"event"`

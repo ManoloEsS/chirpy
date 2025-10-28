@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// HandlerGetAllChirps retrieves all chirps with optional filtering and sorting.
+// Supports query parameters: author_id (filter by user), sort (asc/desc by creation time).
 func (cfg *ApiConfig) HandlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
 	var chirps []database.Chirp
 	var err error

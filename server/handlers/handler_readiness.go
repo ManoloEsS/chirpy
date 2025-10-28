@@ -2,7 +2,7 @@ package handlers
 
 import "net/http"
 
-// function that writes the response for health check
+// HandlerReadiness handles health check requests to verify server availability.
 func HandlerReadiness(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)

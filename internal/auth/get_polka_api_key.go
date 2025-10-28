@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// GetAPIKey extracts the API key from the Authorization header.
+// Expected format: "ApiKey <key>". Used by HandlerUpdateUserToChirpyRed for webhook authentication.
 func GetAPIKey(headers http.Header) (string, error) {
 	authData := headers.Get("Authorization")
 	if authData == "" {

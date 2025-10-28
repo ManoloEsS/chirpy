@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// RespondWithJSON marshals the payload to JSON and writes it to the response with the given status code.
+// Sets Content-Type to application/json and logs errors if marshaling fails.
 func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
 	response, err := json.Marshal(payload)
 	if err != nil {
@@ -18,6 +20,8 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
 	w.Write(response)
 }
 
+// RespondWithError responds with a JSON error message and logs the error if provided.
+// Logs 5XX errors with additional context and wraps the message in a standard error response structure.
 func RespondWithError(w http.ResponseWriter, code int, msg string, err error) {
 	if err != nil {
 		log.Println(err)

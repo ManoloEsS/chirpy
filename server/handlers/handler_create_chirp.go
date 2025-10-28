@@ -15,7 +15,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// function that takes a request to /api/chirps, creates a new Chirp saved at table Chirps and responds with a JSON struct of the Chirp data or error response
+// HandlerCreateChirp creates a new chirp message for the authenticated user.
+// Validates JWT, filters profanity, enforces length limits, and saves to database.
 func (cfg *ApiConfig) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 	//chirp struct to use for decoding request
 	type ChirpParams struct {
@@ -79,6 +80,7 @@ func (cfg *ApiConfig) HandlerCreateChirp(w http.ResponseWriter, r *http.Request)
 	server.RespondWithJSON(w, 201, resp)
 }
 
+// validateChirp checks chirp length and filters profane words.
 func validateChirp(body string) (string, error) {
 	if len(body) > config.MaxChirpLength {
 		return "", errors.New("Chirp is too long")
@@ -89,6 +91,8 @@ func validateChirp(body string) (string, error) {
 	return filteredBody, nil
 
 }
+
+// profaneFilter replaces profane words with asterisks.
 func profaneFilter(prefilter string, profanity map[string]struct{}) string {
 	splitString := strings.Split(prefilter, " ")
 	for i, word := range splitString {

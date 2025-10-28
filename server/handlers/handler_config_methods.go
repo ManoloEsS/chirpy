@@ -7,7 +7,7 @@ import (
 	"github.com/ManoloEsS/go_http_server/server"
 )
 
-// function that writes the response for metrics check
+// HandlerRequestMetrics displays the current file server hit count in an HTML page.
 func (cfg *ApiConfig) HandlerRequestMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
@@ -20,7 +20,7 @@ func (cfg *ApiConfig) HandlerRequestMetrics(w http.ResponseWriter, r *http.Reque
 	</html>`, cfg.fileServerHits.Load())))
 }
 
-// function that writes the response for reset metrics
+// HandlerResetUsers resets metrics and deletes all users (development environment only).
 func (cfg *ApiConfig) HandlerResetUsers(w http.ResponseWriter, r *http.Request) {
 	if cfg.Platform != "dev" {
 		server.RespondWithError(w, http.StatusForbidden, "Reset is only allowed in env environment", nil)

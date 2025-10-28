@@ -30,7 +30,6 @@ Chirpy is a backend API server that allows users to create accounts, post short 
 
 - Go 1.25.1 or higher
 - PostgreSQL database
-- Git
 
 ### Setup
 
@@ -78,10 +77,29 @@ The server will start on `http://localhost:8080`.
 
 ## API Endpoints
 
-### Health Check
+### Health & Metrics
 
-#### `GET /api/healthz`
-Check server health status.
+#### Check Server Health
+```
+GET /api/healthz
+```
+Returns server health status.
+
+**Response**: `200 OK`
+
+#### Get Metrics
+```
+GET /admin/metrics
+```
+Returns server hit metrics.
+
+**Response**: Metrics page with request count
+
+#### Reset Database
+```
+POST /admin/reset
+```
+Resets all users in the database (admin only).
 
 **Response**: `200 OK`
 
@@ -89,7 +107,11 @@ Check server health status.
 
 ### User Management
 
-#### `POST /api/users`
+#### Create User
+```
+POST /api/users
+```
+
 Create a new user account.
 
 **Request Body**:
@@ -104,43 +126,19 @@ Create a new user account.
 ```json
 {
   "id": "uuid",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
   "email": "user@example.com",
   "is_chirpy_red": false
 }
 ```
 
-#### `PUT /api/users`
-Update user email and/or password (requires authentication).
-
-**Headers**: `Authorization: Bearer <jwt_token>`
-
-**Request Body**:
-```json
-{
-  "email": "newemail@example.com",
-  "password": "newpassword"
-}
+#### User Login
+```
+POST /api/login
 ```
 
-**Response**: `200 OK`
-```json
-{
-  "id": "uuid",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
-  "email": "newemail@example.com",
-  "is_chirpy_red": false
-}
-```
-
----
-
-### Authentication
-
-#### `POST /api/login`
-Authenticate user and receive JWT and refresh tokens.
+Authenticate a user and receive access and refresh tokens.
 
 **Request Body**:
 ```json
@@ -155,143 +153,266 @@ Authenticate user and receive JWT and refresh tokens.
 ```json
 {
   "id": "uuid",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
   "email": "user@example.com",
   "is_chirpy_red": false,
-  "token": "jwt_access_token",
-  "refresh_token": "refresh_token_string"
+  "token": "jwt-access-token",
+  "refresh_token": "refresh-token"
 }
 ```
 
-#### `POST /api/refresh`
-Exchange refresh token for a new JWT access token.
+**Notes**:
+- `expires_in_seconds` is optional (max 1 hour)
+- Default expiration is 1 hour if not specified
 
-**Headers**: `Authorization: Bearer <refresh_token>`
-
-**Response**: `200 OK`
-```json
-{
-  "token": "new_jwt_access_token"
-}
+#### Update User
+```
+PUT /api/users
 ```
 
-#### `POST /api/revoke`
-Revoke a refresh token (logout).
+Update user email and/or password.
 
-**Headers**: `Authorization: Bearer <refresh_token>`
-
-**Response**: `204 No Content`
-
----
-
-### Chirps
-
-#### `POST /api/chirps`
-Create a new chirp (requires authentication).
-
-**Headers**: `Authorization: Bearer <jwt_token>`
+**Headers**:
+```
+Authorization: Bearer <jwt-token>
+```
 
 **Request Body**:
 ```json
 {
-  "body": "This is my first chirp!"
+  "email": "newemail@example.com",
+  "password": "newpassword"
+}
+```
+
+**Response**: `200 OK`
+```json
+{
+  "id": "uuid",
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
+  "email": "newemail@example.com",
+  "is_chirpy_red": false
+}
+```
+
+### Token Management
+
+#### Refresh Access Token
+```
+POST /api/refresh
+```
+
+Generate a new access token using a refresh token.
+
+**Headers**:
+```
+Authorization: Bearer <refresh-token>
+```
+
+**Response**: `200 OK`
+```json
+{
+  "token": "new-jwt-access-token"
+}
+```
+
+#### Revoke Refresh Token
+```
+POST /api/revoke
+```
+
+Revoke a refresh token (logout).
+
+**Headers**:
+```
+Authorization: Bearer <refresh-token>
+```
+
+**Response**: `200 OK`
+
+---
+
+### Chirps (Messages)
+
+#### Validate Chirp
+```
+POST /api/validate_chirp
+```
+
+Validate chirp content without saving it.
+
+**Request Body**:
+```json
+{
+  "body": "This is a test chirp message"
+}
+```
+
+**Response**: `200 OK`
+
+#### Create Chirp
+```
+POST /api/chirps
+```
+
+Create a new chirp (authenticated users only).
+
+**Headers**:
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Request Body**:
+```json
+{
+  "body": "This is my chirp message",
+  "user_id": "user-uuid"
 }
 ```
 
 **Response**: `201 Created`
 ```json
 {
-  "id": "uuid",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
-  "body": "This is my first chirp!",
-  "user_id": "uuid"
+  "id": "chirp-uuid",
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
+  "body": "This is my chirp message",
+  "user_id": "user-uuid"
 }
 ```
 
-#### `GET /api/chirps`
-Retrieve all chirps with optional filtering and sorting.
+**Notes**:
+- Maximum chirp length: 140 characters
+- Profane words are automatically replaced with `****`
+- Filtered words: kerfuffle, sharbert, fornax
 
-**Query Parameters**:
-- `author_id` (optional): Filter chirps by user UUID
-- `sort` (optional): Sort order - `asc` (default) or `desc`
+#### Get All Chirps
+```
+GET /api/chirps
+```
+
+Retrieve all chirps from the database.
 
 **Response**: `200 OK`
 ```json
 [
   {
-    "id": "uuid",
-    "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "body": "This is a chirp!",
-    "user_id": "uuid"
+    "id": "chirp-uuid",
+    "created_at": "timestamp",
+    "updated_at": "timestamp",
+    "body": "Chirp message",
+    "user_id": "user-uuid"
   }
 ]
 ```
 
-#### `GET /api/chirps/{chirpID}`
-Retrieve a specific chirp by ID.
+#### Get Chirp by ID
+```
+GET /api/chirps/{chirpID}
+```
+
+Retrieve a specific chirp by its ID.
+
+**Parameters**:
+- `chirpID`: UUID of the chirp
 
 **Response**: `200 OK`
 ```json
 {
-  "id": "uuid",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
-  "body": "This is a chirp!",
-  "user_id": "uuid"
+  "id": "chirp-uuid",
+  "created_at": "timestamp",
+  "updated_at": "timestamp",
+  "body": "Chirp message",
+  "user_id": "user-uuid"
 }
 ```
 
-#### `DELETE /api/chirps/{chirpID}`
-Delete a chirp (requires authentication and ownership).
+#### Delete Chirp
+```
+DELETE /api/chirps/{chirpID}
+```
 
-**Headers**: `Authorization: Bearer <jwt_token>`
+Delete a chirp (only the chirp's author can delete it).
+
+**Headers**:
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Parameters**:
+- `chirpID`: UUID of the chirp
 
 **Response**: `204 No Content`
 
+**Error**: `403 Forbidden` if user is not the chirp's author
+
 ---
 
-### Premium Features
+### Webhooks
 
-#### `POST /api/polka/webhooks`
-Webhook endpoint for upgrading users to Chirpy Red (requires API key).
+#### Polka Upgrade Webhook
+```
+POST /api/polka/webhooks
+```
 
-**Headers**: `Authorization: ApiKey <polka_api_key>`
+Webhook for upgrading users to Chirpy Red premium membership.
+
+**Headers**:
+```
+Authorization: ApiKey <polka-api-key>
+```
 
 **Request Body**:
 ```json
 {
   "event": "user.upgraded",
   "data": {
-    "user_id": "uuid"
+    "user_id": "user-uuid"
   }
 }
 ```
 
 **Response**: `204 No Content`
 
----
-
-### Admin Endpoints
-
-#### `GET /admin/metrics`
-View server metrics (file server hit count).
-
-**Response**: `200 OK` (HTML page)
-
-#### `POST /admin/reset`
-Reset all users and metrics (development environment only).
-
-**Response**: `200 OK`
+**Notes**:
+- Requires valid Polka API key
+- Only processes `user.upgraded` events
+- Returns `204` for other event types
 
 ---
 
 ### Static Files
 
-#### `GET /app/*`
+#### Application Files
+```
+GET /app/*
+```
+
 Serves static files from the root directory.
+
+**Example**: 
+- `/app/` → serves `index.html`
+- `/app/assets/style.css` → serves static assets
+
+---
+
+## Authentication Flow
+
+1. **User Registration**: User creates account via `POST /api/users`
+2. **Login**: User authenticates via `POST /api/login`, receives JWT (1 hour) and refresh token (60 days)
+3. **API Requests**: User includes JWT in `Authorization: Bearer <token>` header
+4. **Token Refresh**: When JWT expires, use refresh token via `POST /api/refresh` to get new JWT
+5. **Logout**: Revoke refresh token via `POST /api/revoke`
+
+## Security Features
+
+- **Argon2id Password Hashing**: Industry-standard secure password storage
+- **JWT Authentication**: Stateless token-based authentication
+- **Refresh Tokens**: Long-lived tokens stored in database with revocation support
+- **Profanity Filtering**: Automatic content moderation
+- **Authorization Checks**: Ownership validation for resource deletion
 
 ## Project Structure
 
@@ -330,23 +451,6 @@ go_http_server/
 ├── sqlc.yaml                    # sqlc configuration
 └── README.md                    # This file
 ```
-
-## Authentication Flow
-
-1. **User Registration**: User creates account via `POST /api/users`
-2. **Login**: User authenticates via `POST /api/login`, receives JWT (1 hour) and refresh token (60 days)
-3. **API Requests**: User includes JWT in `Authorization: Bearer <token>` header
-4. **Token Refresh**: When JWT expires, use refresh token via `POST /api/refresh` to get new JWT
-5. **Logout**: Revoke refresh token via `POST /api/revoke`
-
-## Security Features
-
-- **Argon2id Password Hashing**: Industry-standard secure password storage
-- **JWT Authentication**: Stateless token-based authentication
-- **Refresh Tokens**: Long-lived tokens stored in database with revocation support
-- **Profanity Filtering**: Automatic content moderation
-- **Authorization Checks**: Ownership validation for resource deletion
-
 ## Development
 
 ### Running Tests
@@ -362,14 +466,6 @@ sqlc generate
 ### Environment Modes
 - `PLATFORM=dev`: Enables admin reset endpoint
 - `PLATFORM=prod`: Disables destructive admin operations
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## License
 
